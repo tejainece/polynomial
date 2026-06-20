@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:polynomial/polynomial.dart';
 
+export 'closed_form_solver.dart';
 export 'laguerre_solver.dart';
 export 'newton_solver.dart';
 
