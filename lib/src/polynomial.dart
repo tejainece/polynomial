@@ -176,6 +176,44 @@ class Polynomial {
 
   bool get isZero => _coefficients.length == 1 && _coefficients.first == 0;
 
+  bool isNearlyZero([double epsilon = 1e-8]) =>
+      _coefficients.every((c) => c.abs() < epsilon);
+
+  /// Returns the monic form of this polynomial (leading coefficient = 1).
+  /// Returns the zero polynomial if the leading coefficient is negligible.
+  Polynomial monic() {
+    final lead = _coefficients.last;
+    if (lead.abs() < 1e-10) return Polynomial([0]);
+    return this / lead;
+  }
+
+  /// Computes p(q(t)) — substitutes [inner] into this polynomial.
+  /// Uses Horner's method: degree(result) = degree(this) × degree(inner).
+  Polynomial compose(Polynomial inner) {
+    if (isZero) return this;
+    var result = Polynomial([_coefficients.last]);
+    for (int i = _coefficients.length - 2; i >= 0; i--) {
+      result = result * inner + _coefficients[i];
+    }
+    return result;
+  }
+
+  /// Returns the monic GCD of [a] and [b] via the Euclidean algorithm.
+  /// Returns the zero polynomial iff both inputs are zero.
+  static Polynomial gcd(Polynomial a, Polynomial b) {
+    while (!b.isZero) {
+      if (a.degree < b.degree) {
+        final tmp = a;
+        a = b;
+        b = tmp;
+      }
+      final (_, r) = a.divide(b);
+      a = b;
+      b = r.isNearlyZero() ? Polynomial([0]) : r.monic();
+    }
+    return a.isZero ? a : a.monic();
+  }
+
   @override
   String toString({String variable = 'x'}) {
     final sb = StringBuffer();
