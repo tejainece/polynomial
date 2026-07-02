@@ -1,6 +1,6 @@
 name: polynomial
 description: Simple API to perform polynomial operations like finding roots, addition, subtraction, multiplication, division, etc.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/tejainece/polynomial
 
 environment:
