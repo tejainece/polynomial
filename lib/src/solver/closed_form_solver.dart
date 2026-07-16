@@ -63,8 +63,8 @@ class ClosedFormMethod extends PolynomialSolver {
     final roots = realRoots(polynomial);
     if (roots.isEmpty) throw RootNotFound(1);
     if (guess == null) return roots.first;
-    return roots.reduce(
-        (a, b) => (a - guess).abs() <= (b - guess).abs() ? a : b);
+    return roots
+        .reduce((a, b) => (a - guess).abs() <= (b - guess).abs() ? a : b);
   }
 
   @override
@@ -163,7 +163,9 @@ List<double> quarticRealRoots(
         continue;
       }
       final y = sqrt(y2);
-      roots..add(y)..add(-y);
+      roots
+        ..add(y)
+        ..add(-y);
     }
   } else if (r.abs() < _eps) {
     // y·(y³ + p·y + q) = 0.
