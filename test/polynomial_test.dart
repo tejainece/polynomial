@@ -145,4 +145,49 @@ void main() {
       expect(Polynomial([0.01, 0]).isNearlyZero(), isFalse);
     });
   });
+
+  group('quadraticRealRoots & cubicRealRoots numerical stability', () {
+    test('quadraticRealRoots does not suffer from catastrophic cancellation when b² >> 4ac', () {
+      // Equation: 2.27e-11 * x² - 14832.8157 * x + 9888.5438 = 0
+      // Expected root: x = 9888.5438 / 14832.8157 = 2/3 ≈ 0.6666666667
+      final roots = quadraticRealRoots(2.2737367544323206e-11, -14832.815729997492, 9888.543819998318);
+      expect(roots, isNotEmpty);
+      expect(roots.any((r) => (r - (2.0 / 3.0)).abs() < 1e-6), isTrue);
+    });
+
+    test('quadraticRealRoots solves standard quadratic with distinct real roots', () {
+      // x² - 5x + 6 = 0  -> roots: 2, 3
+      final roots = quadraticRealRoots(1, -5, 6);
+      expect(roots.length, equals(2));
+      expect(roots, containsAll([closeTo(2.0, 1e-9), closeTo(3.0, 1e-9)]));
+    });
+
+    test('quadraticRealRoots solves double root', () {
+      // x² - 4x + 4 = 0  -> root: 2
+      final roots = quadraticRealRoots(1, -4, 4);
+      expect(roots.length, equals(1));
+      expect(roots.first, closeTo(2.0, 1e-9));
+    });
+
+    test('quadraticRealRoots returns empty for negative discriminant', () {
+      // x² + 1 = 0
+      final roots = quadraticRealRoots(1, 0, 1);
+      expect(roots, isEmpty);
+    });
+
+    test('cubicRealRoots degenerates cleanly to quadratic and linear when leading terms are negligible', () {
+      // A = 0, B = 2.27e-11, C = -14832.8, D = 9888.54
+      final roots = cubicRealRoots(0.0, 2.2737367544323206e-11, -14832.815729997492, 9888.543819998318);
+      expect(roots, isNotEmpty);
+      expect(roots.any((r) => (r - (2.0 / 3.0)).abs() < 1e-6), isTrue);
+    });
+
+    test('cubicRealRoots finds three distinct roots for standard cubic', () {
+      // (x - 1)(x - 2)(x - 3) = x³ - 6x² + 11x - 6 = 0
+      final roots = cubicRealRoots(1, -6, 11, -6);
+      expect(roots.length, equals(3));
+      expect(roots, containsAll([closeTo(1.0, 1e-7), closeTo(2.0, 1e-7), closeTo(3.0, 1e-7)]));
+    });
+  });
 }
+

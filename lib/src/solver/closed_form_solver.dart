@@ -83,7 +83,9 @@ double _cbrt(double x) =>
 
 /// Real roots of `a·x² + b·x + c = 0`.
 List<double> quadraticRealRoots(double a, double b, double c) {
-  if (a.abs() < _eps) {
+  final scale = max(b.abs(), c.abs());
+  if (scale == 0) return a.abs() < _eps ? const [] : [0.0];
+  if (a.abs() < _eps || (a.abs() / scale) < 1e-9) {
     if (b.abs() < _eps) return const [];
     return [-c / b];
   }
@@ -98,12 +100,18 @@ List<double> quadraticRealRoots(double a, double b, double c) {
   }
   if (disc == 0) return [-b / (2 * a)];
   final s = sqrt(disc);
-  return [(-b - s) / (2 * a), (-b + s) / (2 * a)];
+  // Numerically stable quadratic formula to prevent catastrophic cancellation
+  final q = -0.5 * (b + (b >= 0 ? 1.0 : -1.0) * s);
+  return [q / a, c / q];
 }
 
 /// Real roots of `a·x³ + b·x² + c·x + d = 0` (Cardano / trigonometric form).
 List<double> cubicRealRoots(double a, double b, double c, double d) {
-  if (a.abs() < _eps) return quadraticRealRoots(b, c, d);
+  final scale = max(max(b.abs(), c.abs()), d.abs());
+  if (scale == 0) return a.abs() < _eps ? const [] : [0.0];
+  if (a.abs() < _eps || (a.abs() / scale) < 1e-9) {
+    return quadraticRealRoots(b, c, d);
+  }
   // Normalise to monic x³ + b·x² + c·x + d.
   b /= a;
   c /= a;
@@ -142,7 +150,11 @@ List<double> cubicRealRoots(double a, double b, double c, double d) {
 /// quadratics real wherever possible.
 List<double> quarticRealRoots(
     double a, double b, double c, double d, double e) {
-  if (a.abs() < _eps) return cubicRealRoots(b, c, d, e);
+  final scale = max(max(max(b.abs(), c.abs()), d.abs()), e.abs());
+  if (scale == 0) return a.abs() < _eps ? const [] : [0.0];
+  if (a.abs() < _eps || (a.abs() / scale) < 1e-9) {
+    return cubicRealRoots(b, c, d, e);
+  }
   // Monic x⁴ + b·x³ + c·x² + d·x + e.
   b /= a;
   c /= a;
